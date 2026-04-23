@@ -136,9 +136,9 @@ edusync/
 
 *(Replace these placeholders with your actual images or a Loom video link)*
 
-| Dashboard | Scheduling Engine | Teacher Management |
+| Dashboard | Scheduling Engine | Resource Management |
 | :---: | :---: | :---: |
-| ![Dashboard Placeholder](https://via.placeholder.com/300x200?text=Dashboard+UI) | ![Engine Placeholder](https://via.placeholder.com/300x200?text=EduSync+Engine) | ![Management Placeholder](https://via.placeholder.com/300x200?text=Resource+Management) |
+| ![Dashboard](screenshots/dashboard.png) | ![Engine](screenshots/engine.png) | ![Management](screenshots/management.png) |
 
 ---
 
