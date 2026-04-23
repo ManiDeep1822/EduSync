@@ -119,22 +119,22 @@ const TimetableView = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Link to="/dashboard" className="p-1 hover:bg-slate-100 rounded-lg text-slate-400">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Link to="/dashboard" className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
               <ChevronLeft size={20} />
             </Link>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Weekly Schedule: {timetable?.batch?.name || 'Loading...'}
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">
+              Weekly Schedule: <span className="text-primary">{timetable?.batch?.name || 'Loading...'}</span>
             </h1>
           </div>
-          <div className="flex items-center gap-4 text-sm font-medium">
-            <span className="text-slate-500 flex items-center gap-1">
-              <Calendar size={14} /> Week of {timetable?.weekStartDate ? new Date(timetable.weekStartDate).toLocaleDateString() : 'N/A'}
+          <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm font-medium pl-9">
+            <span className="text-slate-500 flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg">
+              <Calendar size={14} className="text-slate-400" /> {timetable?.weekStartDate ? new Date(timetable.weekStartDate).toLocaleDateString() : 'N/A'}
             </span>
-            <span className={`flex items-center gap-1 ${
-              timetable?.status === 'published' ? 'text-emerald-600' : 'text-amber-600'
+            <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${
+              timetable?.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
             }`}>
               {timetable?.status === 'published' ? <Lock size={14} /> : <Unlock size={14} />}
               {(timetable?.status || 'UNKNOWN').toUpperCase()}
@@ -143,20 +143,22 @@ const TimetableView = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="p-2.5 bg-white border rounded-xl hover:bg-slate-50 transition-colors shadow-sm" title="Print">
-            <Printer size={20} className="text-slate-600" />
-          </button>
-          <button className="p-2.5 bg-white border rounded-xl hover:bg-slate-50 transition-colors shadow-sm" title="Download PDF">
-            <FileText size={20} className="text-slate-600" />
-          </button>
+          <div className="flex items-center bg-white border rounded-xl overflow-hidden shadow-sm">
+            <button className="p-2.5 hover:bg-slate-50 transition-colors border-r" title="Print">
+              <Printer size={20} className="text-slate-600" />
+            </button>
+            <button className="p-2.5 hover:bg-slate-50 transition-colors" title="Download PDF">
+              <FileText size={20} className="text-slate-600" />
+            </button>
+          </div>
           
           {isAdmin && timetable?.status === 'draft' && (
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95"
             >
-              <Share2 size={20} /> {isPublishing ? 'Publishing...' : 'Publish Schedule'}
+              <Share2 size={20} /> {isPublishing ? 'Publishing...' : 'Publish'}
             </button>
           )}
         </div>

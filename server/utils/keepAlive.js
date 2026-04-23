@@ -13,13 +13,18 @@ const keepAlive = (url) => {
   // Ping every 14 minutes (Render spins down after 15 minutes)
   const INTERVAL = 14 * 60 * 1000;
 
-  setInterval(() => {
+  const ping = () => {
     https.get(url, (res) => {
       console.log(`Keep-alive: Pinged ${url} - Status: ${res.statusCode}`);
     }).on('error', (err) => {
       console.error(`Keep-alive: Error pinging ${url}: ${err.message}`);
     });
-  }, INTERVAL);
+  };
+
+  // Immediate ping
+  ping();
+
+  setInterval(ping, INTERVAL);
 
   console.log(`Keep-alive: Started for ${url} (14m intervals)`);
 };

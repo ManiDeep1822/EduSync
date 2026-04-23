@@ -109,14 +109,14 @@ const RoomManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Room Management</h1>
-          <p className="text-slate-500">Define classrooms, labs, and their facilities.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Room Management</h1>
+          <p className="text-slate-500 text-sm md:text-base">Define classrooms, labs, and their facilities.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+          className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all w-full sm:w-auto"
         >
           <Plus size={20} /> Add Room
         </button>
@@ -200,14 +200,14 @@ const RoomManagement = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="p-6 border-b flex items-center justify-between">
+            <div className="p-6 border-b flex items-center justify-between sticky top-0 bg-white z-10">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">{editingId ? 'Edit Room' : 'Add New Room'}</h2>
               <button onClick={handleCloseModal} className="p-2 hover:bg-slate-100 rounded-full">
                 <X size={24} className="text-slate-400" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">Room Name</label>
@@ -221,7 +221,7 @@ const RoomManagement = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">Type</label>
                     <select

@@ -31,7 +31,9 @@ app.set('io', io);
 // Middleware
 app.use(cors({
   origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'https://edu-sync-psi.vercel.app'].filter(Boolean),
-  credentials: true
+  credentials: true,
+  maxAge: 86400, // Cache preflight requests for 24 hours
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

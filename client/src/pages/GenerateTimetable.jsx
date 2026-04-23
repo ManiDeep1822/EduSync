@@ -57,8 +57,8 @@ const GenerateTimetable = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Generate New Timetable</h1>
-        <p className="text-slate-500">Run the EduSync engine to create an optimized, conflict-free schedule.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Generate New Timetable</h1>
+        <p className="text-slate-500 text-sm md:text-base">Run the EduSync engine to create an optimized, conflict-free schedule.</p>
       </div>
 
       <div className="bg-white border rounded-2xl p-8 shadow-sm">
@@ -153,7 +153,7 @@ const GenerateTimetable = () => {
             </div>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => navigate(`/timetable/${result.data._id}`)}
               className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"

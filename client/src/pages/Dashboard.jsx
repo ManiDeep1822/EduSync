@@ -59,8 +59,8 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Welcome back, {user?.name}</h1>
-        <p className="text-slate-500">
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Welcome back, {user?.name}</h1>
+        <p className="text-slate-500 text-sm md:text-base">
           {(user?.role === 'admin') 
             ? "Here's an overview of your institution's schedule status." 
             : "Review your upcoming schedules and academic activities."}
@@ -96,52 +96,54 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
-            {recentTimetables.length > 0 ? (
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b">
-                  <tr>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-700">Batch</th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-700">Week</th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-700">Status</th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-700">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {recentTimetables.map((timetable) => (
-                    <tr key={timetable._id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-900">{timetable.batch?.name}</td>
-                      <td className="px-6 py-4 text-slate-500 text-sm">
-                        {new Date(timetable.weekStartDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          timetable.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          {timetable.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link 
-                          to={`/timetable/${timetable._id}`}
-                          className="text-primary hover:text-primary/70 font-semibold text-sm"
-                        >
-                          Details
-                        </Link>
-                      </td>
+            <div className="overflow-x-auto">
+              {recentTimetables.length > 0 ? (
+                <table className="w-full text-left min-w-[500px] md:min-w-full">
+                  <thead className="bg-slate-50 border-b">
+                    <tr>
+                      <th className="px-6 py-4 text-sm font-semibold text-slate-700">Batch</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-slate-700">Week</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-slate-700">Status</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-slate-700">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-slate-500">No schedules available to view at the moment.</p>
-                {isAdmin && (
-                  <Link to="/generate" className="mt-4 inline-flex items-center gap-2 text-primary font-bold hover:underline">
-                    <PlusCircle size={18} /> Generate your first one
-                  </Link>
-                )}
-              </div>
-            )}
+                  </thead>
+                  <tbody className="divide-y">
+                    {recentTimetables.map((timetable) => (
+                      <tr key={timetable._id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 font-medium text-slate-900">{timetable.batch?.name}</td>
+                        <td className="px-6 py-4 text-slate-500 text-sm">
+                          {new Date(timetable.weekStartDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            timetable.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {timetable.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Link 
+                            to={`/timetable/${timetable._id}`}
+                            className="text-primary hover:text-primary/70 font-semibold text-sm"
+                          >
+                            Details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="p-12 text-center">
+                  <p className="text-slate-500">No schedules available to view at the moment.</p>
+                  {isAdmin && (
+                    <Link to="/generate" className="mt-4 inline-flex items-center gap-2 text-primary font-bold hover:underline">
+                      <PlusCircle size={18} /> Generate your first one
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

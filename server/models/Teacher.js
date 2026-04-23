@@ -41,5 +41,7 @@ const teacherSchema = new mongoose.Schema({
   timestamps: true
 });
 
+teacherSchema.index({ userId: 1 });
+
 const Teacher = mongoose.model('Teacher', teacherSchema);
 module.exports = Teacher;

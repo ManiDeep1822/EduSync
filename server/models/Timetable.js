@@ -81,5 +81,10 @@ const timetableSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Indexes for performance optimization
+timetableSchema.index({ weekStartDate: 1, batch: 1 });
+timetableSchema.index({ 'slots.teacher': 1, weekStartDate: 1 });
+timetableSchema.index({ 'slots.room': 1, weekStartDate: 1 });
+
 const Timetable = mongoose.model('Timetable', timetableSchema);
 module.exports = Timetable;

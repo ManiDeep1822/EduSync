@@ -24,7 +24,19 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
     const courses = await Course.find({ batches: batchId }).populate('assignedTeacher');
     const rooms = await Room.find({ isAvailable: true });
 
-    // 2. Slot Matrix Setup
+    // 2. Optimization: Pre-fetch all existing timetables for this week to avoid DB queries inside loops
+    const existingTimetables = await Timetable.find({ weekStartDate });
+    const busyTeachers = new Set();
+    const busyRooms = new Set();
+
+    existingTimetables.forEach(t => {
+      t.slots.forEach(slot => {
+        busyTeachers.add(`${slot.day}-${slot.startTime}-${slot.teacher}`);
+        busyRooms.add(`${slot.day}-${slot.startTime}-${slot.room}`);
+      });
+    });
+
+    // 3. Slot Matrix Setup
     // structure: matrix[day][time] = { courseId, teacherId, roomId, batchId }
     const matrix = {};
     DAYS.forEach(day => {
@@ -37,7 +49,7 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
     const resultSlots = [];
     const conflicts = [];
 
-    // 3. Assignment Loop
+    // 4. Assignment Loop
     for (const course of courses) {
       let weeklyHoursLeft = course.hoursPerWeek;
       const teacher = course.assignedTeacher;
@@ -58,58 +70,23 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
         for (const startTime of START_HOURS) {
           if (weeklyHoursLeft <= 0) break;
 
-          // Check if batch is already busy in this slot (from previous courses in this batch generation)
+          // Check if batch is already busy in this slot
           if (!isBatchFree(batchId, day, startTime, matrix)) continue;
 
           // Check if teacher is available according to their profile
           if (!isTeacherAvailable(teacher, day, startTime)) continue;
 
-          // Check if teacher is free (not assigned to ANOTHER batch at this time)
-          // Since we are generating for ONE batch at a time, we actually need the full matrix of ALL published/draft slots for that week.
-          // For simplicity in this standalone generator for one batch, we'll check against existing slots in DB for others.
-          
-          const isTeacherBusyElsewhere = await Timetable.findOne({
-            weekStartDate,
-            'slots': {
-              $elemMatch: {
-                day,
-                startTime,
-                teacher: teacher._id
-              }
-            }
-          });
-          if (isTeacherBusyElsewhere) continue;
+          // Check if teacher is free using our pre-fetched busy map
+          if (busyTeachers.has(`${day}-${startTime}-${teacher._id}`)) continue;
 
           // Find an available room
-          const availableRoom = rooms.find(room => {
-            // Room type match
-            if (room.type !== course.requiredRoomType) return false;
-            // Capacity match
-            if (room.capacity < (course.requiredCapacity || 0)) return false;
-            
-            // Room free check (not assigned to this batch's current matrix or any other batch in DB)
-            return true; // We'll refine room search
-          });
-
           let finalRoom = null;
           for (const room of rooms) {
             if (room.type !== course.requiredRoomType) continue;
             if (room.capacity < (course.requiredCapacity || 0)) continue;
 
-            // Check if room is free in current matrix (though for one batch it will be)
-            // Check if room is free across ALL timetables for that week
-            const isRoomBusyElsewhere = await Timetable.findOne({
-              weekStartDate,
-              'slots': {
-                $elemMatch: {
-                  day,
-                  startTime,
-                  room: room._id
-                }
-              }
-            });
-
-            if (!isRoomBusyElsewhere) {
+            // Check if room is free using our pre-fetched busy map
+            if (!busyRooms.has(`${day}-${startTime}-${room._id}`)) {
               finalRoom = room;
               break;
             }
