@@ -9,6 +9,10 @@ const connectDB = require('./config/db');
 // Connect to Database
 connectDB();
 
+// Prevent cold starts on Render
+const keepAlive = require('./utils/keepAlive');
+keepAlive(process.env.APP_URL);
+
 const app = express();
 const server = http.createServer(app);
 
