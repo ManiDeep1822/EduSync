@@ -149,5 +149,5 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ---
 
 <p align="center">
-  Made with ❤️ by ManiDeep
+  Built with ❤️ by Team EduSync
 </p>
