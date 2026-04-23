@@ -35,7 +35,7 @@ app.use(cookieParser());
 
 // Basic Route
 app.get('/', (req, res) => {
-  res.json({ message: 'SchedulAI API is running...' });
+  res.json({ message: 'EduSync API is running...' });
 });
 
 // Routes
