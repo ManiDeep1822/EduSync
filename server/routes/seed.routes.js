@@ -74,7 +74,16 @@ router.get('/', async (req, res) => {
       batchId: batches[0]._id
     });
 
-    res.json({ success: true, message: 'Production Database Seeded Successfully!' });
+    const userCount = await User.countDocuments();
+    res.json({ 
+      success: true, 
+      message: 'Production Database Seeded Successfully!',
+      details: {
+        users: userCount,
+        teachers: teachers.length,
+        batches: batches.length
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
