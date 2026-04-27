@@ -39,6 +39,12 @@ The system doesn't just find a room; it finds the *right* room. EduSync matches 
 ### ⚙️ The EduSync Engine
 The heart of the application. A powerful automated scheduling algorithm that processes all constraints to generate a conflict-free timetable in seconds, drastically reducing administrative overhead.
 
+### 🖨️ Export & Distribution
+Generate professional, clean, and full-page schedules ready for physical posting or digital sharing. The system includes optimized "Print Views" that automatically strip away interface clutter for a high-fidelity export.
+
+### 🔄 Real-time Synchronization
+Powered by **Socket.io**, EduSync ensures that all stakeholders—admins, teachers, and students—see updates the instant they happen. No manual refreshing is required when a schedule is published or modified.
+
 ### 🎨 Premium User Experience
 - **Sleek Dashboard**: A modern, responsive administrative interface built with **Tailwind CSS**.
 - **Intuitive Icons**: Integrated **Lucide React** icons for a professional, clean aesthetic.
@@ -106,6 +112,22 @@ Start the development server:
 ```bash
 npm run dev
 ```
+
+### 4. Seed Data (Recommended)
+To quickly populate the system with teachers, batches, courses, and schedules:
+```bash
+cd server
+node seed.js
+```
+
+---
+
+## 🔑 Demo Credentials
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@edusync.com` | `admin123` |
+| **Teacher** | `sarah.wilson@edusync.com` | `password123` |
+| **Student** | `john.doe@edusync.com` | `password123` |
 
 ---
 
