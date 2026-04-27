@@ -10,124 +10,70 @@ const Timetable = require('../models/Timetable');
 
 router.get('/', async (req, res) => {
   try {
-    // Clear existing data (optional but recommended for a fresh start)
-    await User.deleteMany({});
-    await Teacher.deleteMany({});
-    await Room.deleteMany({});
-    await Batch.deleteMany({});
-    await Course.deleteMany({});
+    // 1. Clean Slate (Optional but ensures no old slots remain)
     await Timetable.deleteMany({});
-
-    // 1. Create Admin
-    await User.create({
-      name: 'Administrator',
-      email: 'admin@edusync.com',
-      password: 'admin123',
-      role: 'admin'
-    });
-
-    // 2. Create Teachers
-    const teachers = await Teacher.create([
-      { name: 'Dr. Alan Turing', email: 'turing@edusync.com', specialization: 'Computer Science', availability: [{ day: 'Monday' }, { day: 'Tuesday' }, { day: 'Wednesday' }] },
-      { name: 'Prof. Ada Lovelace', email: 'lovelace@edusync.com', specialization: 'Mathematics', availability: [{ day: 'Wednesday' }, { day: 'Thursday' }, { day: 'Friday' }] },
-      { name: 'Dr. Sarah Wilson', email: 'sarah.wilson@edusync.com', specialization: 'Physics', availability: [{ day: 'Monday' }, { day: 'Thursday' }, { day: 'Friday' }] },
-      { name: 'Prof. Mike Brown', email: 'mike@edusync.com', specialization: 'CS', availability: [{ day: 'Tuesday' }, { day: 'Wednesday' }, { day: 'Friday' }] }
-    ]);
-
-    // 3. Create Rooms
-    const rooms = await Room.create([
-      { name: 'Room 101', capacity: 40, type: 'classroom', facilities: ['Projector'] },
-      { name: 'Lab A', capacity: 30, type: 'lab', facilities: ['Computers'] },
-      { name: 'Room 201', capacity: 50, type: 'classroom', facilities: ['Projector', 'AC'] },
-      { name: 'Seminar Hall', capacity: 100, type: 'seminar_hall', facilities: ['Audio System'] }
-    ]);
-
-    // 4. Create Batches
-    const batches = await Batch.create([
-      { name: 'CSE-A', academicYear: '2023-24', studentCount: 45 },
-      { name: 'CSE-B', academicYear: '2023-24', studentCount: 42 },
-      { name: 'ECE-A', academicYear: '2023-24', studentCount: 40 }
-    ]);
-
-    // 5. Create Courses
-    const courses = await Course.create([
-      { code: 'CS101', name: 'Data Structures', credits: 4, hoursPerWeek: 4, courseType: 'theory', requiredRoomType: 'classroom' },
-      { code: 'CS102', name: 'Algorithms', credits: 4, hoursPerWeek: 4, courseType: 'theory', requiredRoomType: 'classroom' },
-      { code: 'CS103', name: 'Database Lab', credits: 2, hoursPerWeek: 3, courseType: 'lab', requiredRoomType: 'lab' },
-      { code: 'PH101', name: 'Engineering Physics', credits: 4, hoursPerWeek: 4, courseType: 'theory', requiredRoomType: 'classroom' }
-    ]);
-
-    // 6. Create a Published Timetable for CSE-A
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - startDate.getDay() + 1); // This Monday
     
+    // 2. Create/Update Admin
+    const admin = await User.findOneAndUpdate(
+      { email: 'admin@edusync.com' },
+      { name: 'Administrator', password: 'admin123', role: 'admin' },
+      { upsert: true, new: true }
+    );
+
+    // 3. Create/Update Batches
+    const batches = await Promise.all([
+      Batch.findOneAndUpdate({ name: 'CSE-A' }, { academicYear: '2023-24', studentCount: 45 }, { upsert: true, new: true }),
+      Batch.findOneAndUpdate({ name: 'CSE-B' }, { academicYear: '2023-24', studentCount: 42 }, { upsert: true, new: true })
+    ]);
+
+    // 4. Create/Update Rooms
+    const rooms = await Promise.all([
+      Room.findOneAndUpdate({ name: 'Room 101' }, { capacity: 40, type: 'classroom' }, { upsert: true, new: true }),
+      Room.findOneAndUpdate({ name: 'Lab A' }, { capacity: 30, type: 'lab' }, { upsert: true, new: true }),
+      Room.findOneAndUpdate({ name: 'Room 201' }, { capacity: 50, type: 'classroom' }, { upsert: true, new: true })
+    ]);
+
+    // 5. Create/Update Courses
+    const courses = await Promise.all([
+      Course.findOneAndUpdate({ code: 'CS101' }, { name: 'Data Structures', hoursPerWeek: 4, courseType: 'theory', requiredRoomType: 'classroom' }, { upsert: true, new: true }),
+      Course.findOneAndUpdate({ code: 'PH101' }, { name: 'Physics', hoursPerWeek: 4, courseType: 'theory', requiredRoomType: 'classroom' }, { upsert: true, new: true }),
+      Course.findOneAndUpdate({ code: 'CS103' }, { name: 'DB Lab', hoursPerWeek: 3, courseType: 'lab', requiredRoomType: 'lab' }, { upsert: true, new: true })
+    ]);
+
+    // 6. Create/Update Teachers
+    const teachers = await Promise.all([
+      Teacher.findOneAndUpdate({ email: 'turing@edusync.com' }, { name: 'Alan Turing', availability: [{ day: 'Monday' }, { day: 'Tuesday' }] }, { upsert: true, new: true }),
+      Teacher.findOneAndUpdate({ email: 'sarah.wilson@edusync.com' }, { name: 'Sarah Wilson', availability: [{ day: 'Monday' }, { day: 'Wednesday' }] }, { upsert: true, new: true })
+    ]);
+
+    // 7. Create/Update Users for demo
+    await User.findOneAndUpdate(
+      { email: 'john.doe@edusync.com' },
+      { name: 'John Doe', password: 'password123', role: 'student', batchId: batches[0]._id },
+      { upsert: true, new: true }
+    );
+
+    await User.findOneAndUpdate(
+      { email: 'sarah.wilson@edusync.com' },
+      { name: 'Sarah Wilson', password: 'password123', role: 'teacher', teacherId: teachers[1]._id },
+      { upsert: true, new: true }
+    );
+
+    // 8. Generate Published Timetable
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - startDate.getDay() + 1);
+
     await Timetable.create({
       batch: batches[0]._id,
       weekStartDate: startDate,
       status: 'published',
       slots: [
-        {
-          day: 'Monday',
-          startTime: '09:00',
-          endTime: '10:00',
-          course: courses[0]._id,
-          teacher: teachers[0]._id,
-          room: rooms[0]._id
-        },
-        {
-          day: 'Monday',
-          startTime: '10:00',
-          endTime: '11:00',
-          course: courses[1]._id,
-          teacher: teachers[1]._id,
-          room: rooms[2]._id
-        },
-        {
-          day: 'Tuesday',
-          startTime: '09:00',
-          endTime: '10:00',
-          course: courses[3]._id,
-          teacher: teachers[2]._id,
-          room: rooms[0]._id
-        },
-        {
-          day: 'Wednesday',
-          startTime: '11:00',
-          endTime: '13:00', // 2 hour lab
-          course: courses[2]._id,
-          teacher: teachers[3]._id,
-          room: rooms[1]._id
-        }
+        { day: 'Monday', startTime: '09:00', endTime: '10:00', course: courses[0]._id, teacher: teachers[0]._id, room: rooms[0]._id },
+        { day: 'Monday', startTime: '10:00', endTime: '11:00', course: courses[1]._id, teacher: teachers[1]._id, room: rooms[2]._id }
       ]
     });
 
-    // 7. Link extra users
-    await User.create({
-      name: 'Dr. Sarah Wilson',
-      email: 'sarah.wilson@edusync.com',
-      password: 'password123',
-      role: 'teacher',
-      teacherId: teachers[2]._id
-    });
-
-    await User.create({
-      name: 'John Doe',
-      email: 'john.doe@edusync.com',
-      password: 'password123',
-      role: 'student',
-      batchId: batches[0]._id
-    });
-
-    const userCount = await User.countDocuments();
-    res.json({ 
-      success: true, 
-      message: 'Production Database Seeded Successfully!',
-      details: {
-        users: userCount,
-        teachers: teachers.length,
-        batches: batches.length
-      }
-    });
+    res.json({ success: true, message: 'Seeding complete and idempotent!' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
