@@ -48,10 +48,25 @@ const TimetableView = () => {
   })
 
   const isLoading = isLoadingById || isLoadingBatch || isLoadingTeacher
-  const timetable = timetableData?.data || batchData?.data || teacherData?.data
+  const rawData = timetableData?.data || batchData?.data || teacherData?.data
   
-  // Refined Error Logic: Only error if we attempted a fetch and it returned nothing/error
-  const isError = (id && isErrorById) || (!id && !timetable && !isLoading && !isAdmin && activeBatchId)
+  // Handle Teacher role returning an array of timetables
+  const timetable = useMemo(() => {
+    if (Array.isArray(rawData)) {
+      if (rawData.length === 0) return null
+      // Merge all slots from multiple timetables into one virtual timetable for the teacher
+      return {
+        _id: 'teacher-virtual',
+        status: 'published',
+        batch: { name: 'Your Schedule' },
+        slots: rawData.flatMap(t => t.slots.map(s => ({ ...s, batch: t.batch })))
+      }
+    }
+    return rawData
+  }, [rawData])
+
+  // Refined Error Logic
+  const isError = (id && isErrorById) || (!id && !timetable && !isLoading && !isAdmin && (activeBatchId || user?.role === 'teacher'))
   const isBatchMissing = user?.role === 'student' && !user?.batchId
   const isBaseRoute = !id && !paramBatchId
 
@@ -60,13 +75,16 @@ const TimetableView = () => {
   })
   const [publish, { isLoading: isPublishing }] = usePublishTimetableMutation()
 
-  // Filtering logic for Teacher role
-  const filteredTimetable = timetable ? {
-    ...timetable,
-    slots: user?.role === 'teacher' 
-      ? (timetable.slots ?? []).filter(slot => slot.teacher?._id === user.teacherId)
-      : (timetable.slots ?? [])
-  } : null
+  // Final filtering/processing of the timetable slots
+  const filteredTimetable = useMemo(() => {
+    if (!timetable) return null
+    return {
+      ...timetable,
+      slots: user?.role === 'teacher' 
+        ? (timetable.slots ?? []).filter(slot => slot.teacher?._id === user.teacherId)
+        : (timetable.slots ?? [])
+    }
+  }, [timetable, user])
 
   useEffect(() => {
     if (socket && timetable) {
