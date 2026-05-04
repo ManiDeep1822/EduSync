@@ -20,19 +20,23 @@ const START_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:0
  */
 const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
   try {
+    // Normalize date to midnight to ensure consistent comparison across the week
+    const normalizedDate = new Date(weekStartDate);
+    normalizedDate.setHours(0, 0, 0, 0);
+    
     // 1. Input Collection
     const courses = await Course.find({ batches: batchId }).populate('assignedTeacher');
     const rooms = await Room.find({ isAvailable: true });
 
     // 2. Optimization: Pre-fetch all existing timetables for this week to avoid DB queries inside loops
-    const existingTimetables = await Timetable.find({ weekStartDate });
+    const existingTimetables = await Timetable.find({ weekStartDate: normalizedDate });
     const busyTeachers = new Set();
     const busyRooms = new Set();
 
     existingTimetables.forEach(t => {
       t.slots.forEach(slot => {
-        busyTeachers.add(`${slot.day}-${slot.startTime}-${slot.teacher}`);
-        busyRooms.add(`${slot.day}-${slot.startTime}-${slot.room}`);
+        if (slot.teacher) busyTeachers.add(`${slot.day}-${slot.startTime}-${slot.teacher.toString()}`);
+        if (slot.room) busyRooms.add(`${slot.day}-${slot.startTime}-${slot.room.toString()}`);
       });
     });
 
@@ -63,12 +67,26 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
         continue;
       }
 
+      // Track how many slots this course has on each day to prevent clumping
+      const dailyCourseHours = {};
+      DAYS.forEach(d => dailyCourseHours[d] = 0);
+
       // Try to assign slots
       for (const day of DAYS) {
         if (weeklyHoursLeft <= 0) break;
 
-        for (const startTime of START_HOURS) {
+        // Shuffle START_HOURS to create natural gaps (leisure hours)
+        const shuffledHours = [...START_HOURS].sort(() => Math.random() - 0.5);
+
+        for (const startTime of shuffledHours) {
           if (weeklyHoursLeft <= 0) break;
+
+          // Reserve 13:00 for lunch break
+          if (startTime === '13:00') continue;
+
+          // Enforce realistic scattering: max 1 hour per day for theory, 2 for lab
+          const maxHoursPerDay = course.courseType === 'lab' ? 2 : 1;
+          if (dailyCourseHours[day] >= maxHoursPerDay) continue;
 
           // Check if batch is already busy in this slot
           if (!isBatchFree(batchId, day, startTime, matrix)) continue;
@@ -77,7 +95,7 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
           if (!isTeacherAvailable(teacher, day, startTime)) continue;
 
           // Check if teacher is free using our pre-fetched busy map
-          if (busyTeachers.has(`${day}-${startTime}-${teacher._id}`)) continue;
+          if (busyTeachers.has(`${day}-${startTime}-${teacher._id.toString()}`)) continue;
 
           // Find an available room
           let finalRoom = null;
@@ -86,7 +104,7 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
             if (room.capacity < (course.requiredCapacity || 0)) continue;
 
             // Check if room is free using our pre-fetched busy map
-            if (!busyRooms.has(`${day}-${startTime}-${room._id}`)) {
+            if (!busyRooms.has(`${day}-${startTime}-${room._id.toString()}`)) {
               finalRoom = room;
               break;
             }
@@ -117,6 +135,11 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
 
             resultSlots.push(slotData);
             weeklyHoursLeft--;
+            dailyCourseHours[day]++;
+            
+            // Mark teacher and room as busy for the generated timetable as well
+            busyTeachers.add(`${day}-${startTime}-${teacher._id.toString()}`);
+            busyRooms.add(`${day}-${startTime}-${finalRoom._id.toString()}`);
           }
         }
       }
@@ -131,22 +154,35 @@ const generateTimetable = async (batchId, weekStartDate, generatedBy) => {
       }
     }
 
-    // 4. Save & Return
-    const newTimetable = new Timetable({
-      weekStartDate,
-      batch: batchId,
-      generatedBy,
-      status: 'draft',
-      slots: resultSlots,
-      conflicts,
-      lastModifiedBy: generatedBy,
-      lastModifiedAt: new Date()
-    });
+    // 4. Find existing or create new
+    let timetable = await Timetable.findOne({ batch: batchId, weekStartDate: normalizedDate });
+    
+    if (timetable) {
+      // Update existing
+      timetable.slots = resultSlots;
+      timetable.conflicts = conflicts;
+      timetable.generatedBy = generatedBy;
+      timetable.lastModifiedBy = generatedBy;
+      timetable.lastModifiedAt = new Date();
+      // Keep existing status (usually draft)
+    } else {
+      // Create new
+      timetable = new Timetable({
+        weekStartDate: normalizedDate,
+        batch: batchId,
+        generatedBy,
+        status: 'draft',
+        slots: resultSlots,
+        conflicts,
+        lastModifiedBy: generatedBy,
+        lastModifiedAt: new Date()
+      });
+    }
 
-    await newTimetable.save();
+    await timetable.save();
     
     // Return populated
-    return await Timetable.findById(newTimetable._id)
+    return await Timetable.findById(timetable._id)
       .populate('batch')
       .populate('slots.course')
       .populate('slots.teacher')

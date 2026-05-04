@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLoginMutation } from '../features/auth/authApi'
 import { setCredentials } from '../features/auth/authSlice'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 import { LogIn, Calendar, Lock, Mail, Loader2, Eye, EyeOff, ShieldCheck, UserCog, GraduationCap } from 'lucide-react'
 
 const Login = () => {
@@ -58,7 +58,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-slate-50/50"
-              placeholder="admin@edusync.com"
+              placeholder="admin@edu.com"
               required
             />
           </div>
@@ -101,7 +101,7 @@ const Login = () => {
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Quick Login for Demo</p>
           <div className="grid grid-cols-3 gap-3">
             <button
-              onClick={() => { setEmail('admin@edusync.com'); setPassword('admin123'); }}
+              onClick={() => { setEmail('admin@edu.com'); setPassword('password123'); }}
               className="flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/5 transition-all group"
             >
               <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
@@ -110,7 +110,11 @@ const Login = () => {
               <span className="text-xs font-bold text-slate-600">Admin</span>
             </button>
             <button
-              onClick={() => { setEmail('sarah.wilson@edusync.com'); setPassword('password123'); }}
+              onClick={() => { 
+                const rand = Math.floor(Math.random() * 15) + 1;
+                setEmail(`teacher${rand}@edu.com`); 
+                setPassword('password123'); 
+              }}
               className="flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/5 transition-all group"
             >
               <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
@@ -119,7 +123,11 @@ const Login = () => {
               <span className="text-xs font-bold text-slate-600">Teacher</span>
             </button>
             <button
-              onClick={() => { setEmail('john.doe@edusync.com'); setPassword('password123'); }}
+              onClick={() => { 
+                const rand = Math.floor(Math.random() * 20) + 1;
+                setEmail(`student${rand}@edu.com`); 
+                setPassword('password123'); 
+              }}
               className="flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/5 transition-all group"
             >
               <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">

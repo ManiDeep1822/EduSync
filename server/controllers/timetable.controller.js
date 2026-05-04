@@ -32,11 +32,17 @@ exports.getTimetables = async (req, res) => {
     if (req.user.role === 'teacher') {
       const teacher = await Teacher.findOne({ userId: req.user._id });
       if (teacher) {
-        query = { 'slots.teacher': teacher._id };
+        query = { 'slots.teacher': teacher._id, status: 'published' };
+      } else {
+        query = { _id: null }; // Ensure no results if teacher record missing
       }
     } else if (req.user.role === 'student') {
-      // Assuming we link student to batch somehow, or they just view published ones
-      query = { status: 'published' };
+      const studentBatchId = req.user.batchId?.toString();
+      if (studentBatchId) {
+        query = { status: 'published', batch: studentBatchId };
+      } else {
+        query = { _id: null };
+      }
     }
 
     const timetables = await Timetable.find(query)

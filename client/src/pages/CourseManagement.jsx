@@ -9,7 +9,7 @@ import {
 import { useGetTeachersQuery } from '../features/teachers/teachersApi'
 import { useGetBatchesQuery } from '../features/batches/batchesApi'
 import { BookOpen, Plus, Search, Trash2, Edit, X, Clock, Book, Loader2, AlertCircle } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 import { clsx } from 'clsx'
 
 const CourseManagement = () => {
@@ -326,7 +326,7 @@ const CourseManagement = () => {
                             : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
                         )}
                       >
-                        {b.name}
+                        {b.name} (Sem {b.semester || 'N/A'})
                       </button>
                     )
                   })}

@@ -3,7 +3,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import TimetableCell from './TimetableCell'
 import { useUpdateSlotMutation } from '../../features/timetable/timetableApi'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const TIMES = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00']
@@ -65,13 +65,13 @@ const TimetableGrid = ({ timetable, isAdmin }) => {
   }
 
   const renderTable = () => (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full min-w-[1000px] border-collapse bg-white">
-        <thead className="sticky top-0 z-20">
+    <div className="w-full overflow-x-auto print:overflow-visible">
+      <table className="w-full min-w-[1000px] print:min-w-full border-collapse bg-white print:text-xs">
+        <thead className="sticky top-0 z-20 print:static">
           <tr>
-            <th className="p-4 bg-slate-50 border-b border-r sticky left-0 z-30 w-24"></th>
+            <th className="p-4 bg-slate-50 border-b border-r sticky left-0 z-30 w-24 print:static print:w-auto"></th>
             {DAYS.map(day => (
-              <th key={day} className="p-4 bg-slate-50 border-b text-sm font-bold text-slate-900 uppercase tracking-widest text-center border-r">
+              <th key={day} className="p-4 bg-slate-50 border-b text-sm font-bold text-slate-900 uppercase tracking-widest text-center border-r print:text-[10px] print:p-2">
                 {day}
               </th>
             ))}
@@ -80,22 +80,32 @@ const TimetableGrid = ({ timetable, isAdmin }) => {
         <tbody>
           {TIMES.map(time => (
             <tr key={time}>
-              <td className="p-4 bg-slate-50 border-b border-r sticky left-0 z-10 text-xs font-bold text-slate-500 text-center">
+              <td className="p-4 bg-slate-50 border-b border-r sticky left-0 z-10 text-xs font-bold text-slate-500 text-center print:static print:p-2">
                 {time}
               </td>
-              {DAYS.map(day => {
-                const slot = slotMap[day][time]
-                return (
-                  <TimetableCell
-                    key={`${day}-${time}`}
-                    id={`${day}-${time}`}
-                    slot={slot}
-                    isAdmin={isAdmin && timetable?.status === 'draft'}
-                    day={day}
-                    time={time}
-                  />
-                )
-              })}
+              {time === '13:00' ? (
+                <td colSpan={DAYS.length} className="bg-slate-50 border-b text-center py-6">
+                  <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-slate-100/80 text-slate-400 font-bold uppercase tracking-[0.3em] text-xs shadow-inner">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                    Lunch Break
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  </div>
+                </td>
+              ) : (
+                DAYS.map(day => {
+                  const slot = slotMap[day][time]
+                  return (
+                    <TimetableCell
+                      key={`${day}-${time}`}
+                      id={`${day}-${time}`}
+                      slot={slot}
+                      isAdmin={isAdmin && timetable?.status === 'draft'}
+                      day={day}
+                      time={time}
+                    />
+                  )
+                })
+              )}
             </tr>
           ))}
         </tbody>

@@ -18,6 +18,10 @@ const roomSchema = new mongoose.Schema({
   isAvailable: {
     type: Boolean,
     default: true
+  },
+  block: {
+    type: String,
+    required: true
   }
 }, {
   timestamps: true

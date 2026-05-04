@@ -23,7 +23,7 @@ import {
   Unlock,
   Printer
 } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const TimetableView = () => {
   const { id, batchId: paramBatchId } = useParams()
@@ -78,17 +78,30 @@ const TimetableView = () => {
   // Final filtering/processing of the timetable slots
   const filteredTimetable = useMemo(() => {
     if (!timetable) return null
+    // Only filter for the teacher if we are in the 'Virtual' view (aggregated schedule)
+    // If we are viewing a specific batch (id is present), show everything for context
+    const shouldFilter = user?.role === 'teacher' && timetable._id === 'teacher-virtual'
+    
     return {
       ...timetable,
-      slots: user?.role === 'teacher' 
-        ? (timetable.slots ?? []).filter(slot => slot.teacher?._id === user.teacherId)
+      slots: shouldFilter 
+        ? (timetable.slots ?? []).filter(slot => {
+            const slotTeacherId = typeof slot.teacher === 'object' ? slot.teacher._id : slot.teacher
+            return slotTeacherId === user.teacherId
+          })
         : (timetable.slots ?? [])
     }
   }, [timetable, user])
 
   useEffect(() => {
-    if (socket && timetable) {
-      socket.emit('join', `batch-${timetable.batch?._id}`)
+    if (socket && timetable && timetable.batch) {
+      const roomId = `batch-${timetable.batch._id || timetable.batch}`
+      socket.emit('join', roomId)
+      
+      // Cleanup: Leave room when unmounting or changing timetable
+      return () => {
+        socket.emit('leave', roomId)
+      }
     }
   }, [socket, timetable])
 
@@ -184,7 +197,7 @@ const TimetableView = () => {
               <ChevronLeft size={20} />
             </Link>
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">
-              Weekly Schedule: <span className="text-primary">{timetable?.batch?.name || 'Loading...'}</span>
+              Weekly Schedule: <span className="text-primary">{timetable?.batch ? `${timetable.batch.name} (Sem ${timetable.batch.semester || '?'})` : 'Loading...'}</span>
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm font-medium pl-9">
@@ -232,7 +245,7 @@ const TimetableView = () => {
 
       {isAdmin && <ConflictBadge conflicts={timetable?.conflicts ?? []} />}
 
-      <div className="bg-white border rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden">
+      <div className="bg-white border rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden print:overflow-visible print:shadow-none print:border-none print:rounded-none">
         <TimetableGrid timetable={filteredTimetable} isAdmin={isAdmin} />
       </div>
 

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import RoleGuard from './components/shared/RoleGuard'
 import AppLayout from './components/layout/AppLayout'
@@ -44,23 +44,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Toaster 
-        position="top-right" 
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#334155',
-            color: '#fff',
-            borderRadius: '12px',
-          },
-          success: {
-            duration: 3000,
-            theme: {
-              primary: '#0ea5e9',
-            },
-          },
-        }} 
-      />
       <Routes>
         <Route path="/login" element={<Login />} />
         

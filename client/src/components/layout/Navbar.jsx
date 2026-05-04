@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../../features/auth/authSlice'
 import { useLogoutMutation } from '../../features/auth/authApi'
 import { Menu, LogOut, User, Calendar, LayoutDashboard } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 import { clsx } from 'clsx'
 
 const Navbar = ({ onMenuClick, className }) => {

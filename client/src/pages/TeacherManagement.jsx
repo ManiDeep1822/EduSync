@@ -19,7 +19,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { clsx } from 'clsx'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const TeacherManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)

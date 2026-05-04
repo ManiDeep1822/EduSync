@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { io } from 'socket.io-client'
 import { timetableApi } from '../features/timetable/timetableApi'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
 

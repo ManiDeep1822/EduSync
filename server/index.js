@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Socket.io Setup
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'https://edu-sync-psi.vercel.app'].filter(Boolean),
+    origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'https://edu-sync-psi.vercel.app', 'https://edu-sync-sigma.vercel.app'].filter(Boolean),
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -30,7 +30,7 @@ app.set('io', io);
 
 // Middleware
 app.use(cors({
-  origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'https://edu-sync-psi.vercel.app'].filter(Boolean),
+  origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'https://edu-sync-psi.vercel.app', 'https://edu-sync-sigma.vercel.app'].filter(Boolean),
   credentials: true,
   maxAge: 86400, // Cache preflight requests for 24 hours
   optionsSuccessStatus: 200

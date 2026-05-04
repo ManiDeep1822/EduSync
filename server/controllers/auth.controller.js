@@ -61,10 +61,11 @@ exports.login = async (req, res) => {
     await user.save();
 
     // Set refresh token in cookie
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true, // Always true for sameSite: 'none'
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: isProduction, // Only secure in production
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 

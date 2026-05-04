@@ -61,7 +61,9 @@ const DraggableSlot = ({ slot, isAdmin }) => {
         </div>
         <div className="flex items-center gap-1.5 text-[10px] font-bold">
           <MapPin size={12} strokeWidth={3} />
-          <span className="truncate">{slot.room?.name || '---'}</span>
+          <span className="truncate">
+            {slot.room?.name || '---'} {slot.room?.block ? `(Block ${slot.room.block})` : ''}
+          </span>
         </div>
       </div>
       

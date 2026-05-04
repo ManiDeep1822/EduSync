@@ -7,7 +7,7 @@ import {
   useDeleteRoomMutation 
 } from '../features/rooms/roomsApi'
 import { DoorOpen, Plus, Search, Trash2, Edit, X, Hash, Laptop, Loader2, AlertCircle } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 import { clsx } from 'clsx'
 
 const RoomManagement = () => {
@@ -18,6 +18,7 @@ const RoomManagement = () => {
     name: '',
     capacity: 30,
     type: 'classroom',
+    block: '1',
     facilities: []
   })
 
@@ -36,6 +37,7 @@ const RoomManagement = () => {
       name: room.name,
       capacity: room.capacity,
       type: room.type,
+      block: room.block || '1',
       facilities: room.facilities || []
     })
     setIsModalOpen(true)
@@ -60,7 +62,7 @@ const RoomManagement = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingId(null)
-    setFormData({ name: '', capacity: 30, type: 'classroom', facilities: [] })
+    setFormData({ name: '', capacity: 30, type: 'classroom', block: '1', facilities: [] })
   }
 
   const handleDelete = async (id) => {
@@ -104,7 +106,8 @@ const RoomManagement = () => {
 
   const filteredRooms = (rooms?.data ?? []).filter(r => 
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.type.toLowerCase().includes(searchTerm.toLowerCase())
+    r.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.block && r.block.toString().includes(searchTerm))
   )
 
   return (
@@ -127,7 +130,7 @@ const RoomManagement = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
-            placeholder="Search rooms..."
+            placeholder="Search rooms or blocks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -147,10 +150,17 @@ const RoomManagement = () => {
                     {room.type === 'lab' ? <Laptop size={24} /> : <DoorOpen size={24} />}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-lg uppercase">{room.name}</h3>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded">
-                      {room.type.replace('_', ' ')}
-                    </span>
+                    <h3 className="font-bold text-slate-900 text-lg uppercase truncate max-w-[120px]">{room.name}</h3>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded w-fit">
+                        {room.type.replace('_', ' ')}
+                      </span>
+                      {room.block && (
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">
+                          Block {room.block}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
@@ -209,16 +219,29 @@ const RoomManagement = () => {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Room Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 outline-none"
-                    placeholder="e.g. Room 402 or Physics Lab"
-                    value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Room Name</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 outline-none"
+                      placeholder="e.g. Room 402"
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Block</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 outline-none font-bold"
+                      placeholder="1-15"
+                      value={formData.block}
+                      onChange={e => setFormData({ ...formData, block: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

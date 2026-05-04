@@ -29,6 +29,7 @@ export const store = configureStore({
       coursesApi.middleware,
       batchesApi.middleware,
     ),
+  devTools: false,
 })
 
 setupListeners(store.dispatch)

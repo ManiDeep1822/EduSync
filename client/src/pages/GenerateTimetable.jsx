@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { useGetBatchesQuery } from '../features/batches/batchesApi'
 import { useGenerateTimetableMutation } from '../features/timetable/timetableApi'
 import { Calendar, PlusCircle, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const GenerateTimetable = () => {
   const [batchId, setBatchId] = useState('')
@@ -73,7 +73,7 @@ const GenerateTimetable = () => {
             >
               <option value="">Choose a Batch...</option>
               {(batches?.data ?? []).map(b => (
-                <option key={b._id} value={b._id}>{b.name} ({b.department})</option>
+                <option key={b._id} value={b._id}>{b.name} - Sem {b.semester || 'N/A'} ({b.department})</option>
               ))}
             </select>
           </div>

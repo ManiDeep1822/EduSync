@@ -8,7 +8,7 @@ import {
   useDeleteBatchMutation 
 } from '../features/batches/batchesApi'
 import { Calendar, Plus, Search, Trash2, Edit, X, Users, GraduationCap, Loader2, AlertCircle } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const BatchManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -135,7 +135,7 @@ const BatchManagement = () => {
                     <GraduationCap size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-lg">{batch.name}</h3>
+                    <h3 className="font-bold text-slate-900 text-lg">{batch.name} (Sem {batch.semester || 'N/A'})</h3>
                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{batch.department}</p>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ const BatchManagement = () => {
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Semester</span>
-                  <span className="text-lg font-black text-slate-700">{batch.semester}</span>
+                  <span className="text-lg font-black text-slate-700">{batch.semester || 'N/A'}</span>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Students</span>

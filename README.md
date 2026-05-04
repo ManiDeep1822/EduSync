@@ -38,9 +38,11 @@ The system doesn't just find a room; it finds the *right* room. EduSync matches 
 
 ### ⚙️ The EduSync Engine
 The heart of the application. A powerful automated scheduling algorithm that processes all constraints to generate a conflict-free timetable in seconds, drastically reducing administrative overhead.
+- **Cross-Batch Collision Prevention**: Ensures teachers are never double-booked even if they teach across multiple different batches.
+- **Workload Balancing**: Automatically enforces institution constraints (e.g., maximum of 2 courses per teacher) to prevent instructor burnout.
 
 ### 🖨️ Export & Distribution
-Generate professional, clean, and full-page schedules ready for physical posting or digital sharing. The system includes optimized "Print Views" that automatically strip away interface clutter for a high-fidelity export.
+Generate professional, clean, and full-page schedules ready for physical posting or digital sharing. The system includes optimized "Print Views" that automatically strip away interface clutter and force landscape layout for a high-fidelity, full-width PDF export.
 
 ### 🔄 Real-time Synchronization
 Powered by **Socket.io**, EduSync ensures that all stakeholders—admins, teachers, and students—see updates the instant they happen. No manual refreshing is required when a schedule is published or modified.
